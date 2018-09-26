@@ -111,7 +111,7 @@ class PlayerBall extends Ball {
 					}
                     enemyItem.radius = 0;
                     console.log("After: " + numOfBallsToEat);
-                    eraseEnemyBalls(ballArray, i);
+                    GameRendor.eraseEnemyBalls(ballArray, i);
                 }
          };
 	 }
@@ -166,48 +166,62 @@ class EnemyBall extends Ball {
 	}
 }
 
-function drawPlayerBall() {
-    player.ctx.beginPath();
-	player.ctx.arc(player.xPos, player.yPos, player.radius, 0, Math.PI*2);
-	player.ctx.strokeStyle = "black";
-	player.ctx.stroke();
-	player.ctx.closePath();
-}
-
-function drawEnemyBalls(enemyBallArray) {
-	enemyBallArray.forEach(enemyItem => {
-		enemyItem.ctx.beginPath();
-		enemyItem.ctx.arc(enemyItem.xPos, enemyItem.yPos, enemyItem.radius, 0, Math.PI*2);3
-		if (enemyItem.ballType === "eat") {
-			enemyItem.ctx.strokeStyle = "blue";
-			enemyItem.ctx.stroke();
-		} else if (enemyItem.ballType === "enemy") {
-			enemyItem.ctx.strokeStyle = "red";
-			enemyItem.ctx.stroke();
-		} else if (enemyItem.ballType === "multiplier") {
-			enemyItem.ctx.fillStyle = "rgb(204, 188, 76)";
-			enemyItem.ctx.fill();
+class GameRendor {
+	static drawPlayerBall() {
+		player.ctx.beginPath();
+		player.ctx.arc(player.xPos, player.yPos, player.radius, 0, Math.PI*2);
+		player.ctx.strokeStyle = "black";
+		player.ctx.stroke();
+		player.ctx.closePath();
+	}
+	
+	static drawEnemyBalls(enemyBallArray) {
+		enemyBallArray.forEach(enemyItem => {
+			enemyItem.ctx.beginPath();
+			enemyItem.ctx.arc(enemyItem.xPos, enemyItem.yPos, enemyItem.radius, 0, Math.PI*2);3
+			if (enemyItem.ballType === "eat") {
+				enemyItem.ctx.strokeStyle = "blue";
+				enemyItem.ctx.stroke();
+			} else if (enemyItem.ballType === "enemy") {
+				enemyItem.ctx.strokeStyle = "red";
+				enemyItem.ctx.stroke();
+			} else if (enemyItem.ballType === "multiplier") {
+				enemyItem.ctx.fillStyle = "rgb(204, 188, 76)";
+				enemyItem.ctx.fill();
+			}
+			enemyItem.ctx.closePath();
+		});
+	}
+	
+	static eraseEnemyBalls(enemyArray, enemyIndex) {
+		enemyArray.splice(enemyIndex, 1);
+	}
+	
+	static draw() {
+		player.ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ballArray.forEach(enemyItem => {
+			enemyItem.ctx.clearRect(0, 0, canvas.width, canvas.height);
+			enemyItem.move();
+			enemyItem.collisionHandler();
+		});
+		GameRendor.drawPlayerBall();
+		GameRendor.drawEnemyBalls(ballArray);
+		player.collisionHandler();
+		player.move();
+		player.checkCollisionWithBall(ballArray);
+	}
+	
+	static endGame() {
+		if (player.radius <= 0) {
+			alert("Game over! You've touched too many red circles! Try again?");
+			document.location.reload();
+		 } 
+		 
+		 if (numOfBallsToEat <= 0) {
+			alert("You have won the game! Try again?");
+			document.location.reload();
 		}
-		enemyItem.ctx.closePath();
-	});
-}
-
-function eraseEnemyBalls(enemyArray, enemyIndex) {
-	enemyArray.splice(enemyIndex, 1);
-}
-
-function draw() {
-    player.ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ballArray.forEach(enemyItem => {
-		enemyItem.ctx.clearRect(0, 0, canvas.width, canvas.height);
-		enemyItem.move();
-		enemyItem.collisionHandler();
-	});
-    drawPlayerBall();
-	drawEnemyBalls(ballArray);
-	player.collisionHandler();
-	player.move();
-	player.checkCollisionWithBall(ballArray);
+	}
 }
 
 document.addEventListener("keydown", keyDownHandler, false);
@@ -250,20 +264,8 @@ function keyUpHandler(e) {
 }
 
 function main() {
-	setInterval(draw, 15);
-	setInterval(endGame, 10);
-}
-
-function endGame() {
-	if (player.radius <= 0) {
-		alert("Game over! You've touched too many red circles! Try again?");
-		document.location.reload();
-	 } 
-	 
-	 if (numOfBallsToEat <= 0) {
-		alert("You have won the game! Try again?");
-		document.location.reload();
-	}
+	setInterval(GameRendor.draw, 15);
+	setInterval(GameRendor.endGame, 10);
 }
 
 var player = new PlayerBall(10, canvas.width / 2, canvas.height - 30, 3.25, -3.25);
