@@ -1,6 +1,6 @@
 const canvas = document.getElementById("myCanvas");
-canvas.width = 800;
-canvas.height = 600;
+canvas.width = 1080;
+canvas.height = 720;
 
 const collisionBuffer = 7.5;
 
@@ -167,6 +167,42 @@ class EnemyBall extends Ball {
 }
 
 class GameRendor {
+	static createBallArrays() {
+		var enemySpeed = 5;
+		var eatSpeed = 4;
+		var multiplierSpeed = 7.5;
+
+
+		for (let i = 0; i < numOfEnemies; i++) {
+			var randSpeed = Math.floor(Math.random() * enemySpeed) + 2;
+			var enemy = EnemyBall.createEnemy(randSpeed, -randSpeed);
+			enemy.ballType = "enemy";
+			enemy.id = i;
+			enemyArray.push(enemy);
+		}
+
+		for (let i = 0; i < numOfBallsToEat; i++) {
+			var randSpeed = Math.floor(Math.random() * eatSpeed) + 2;
+			var eat = EnemyBall.createEnemy(randSpeed, -randSpeed);
+			eat.ballType = "eat";
+			eatArray.push(eat);
+		}
+
+		var multiplier = EnemyBall.createEnemy(multiplierSpeed, -multiplierSpeed);
+		multiplier.ballType = "multiplier"; 
+		multiplier.radius = 4;
+
+		ballArray.push(multiplier);
+
+		enemyArray.forEach(enemy => {
+			ballArray.push(enemy);
+		});
+
+		eatArray.forEach(eat => {
+			ballArray.push(eat);
+		});
+	}
+	
 	static drawPlayerBall() {
 		player.ctx.beginPath();
 		player.ctx.arc(player.xPos, player.yPos, player.radius, 0, Math.PI*2);
@@ -264,54 +300,19 @@ function keyUpHandler(e) {
 }
 
 function main() {
+	GameRendor.createBallArrays(10, 20);
 	setInterval(GameRendor.draw, 15);
 	setInterval(GameRendor.endGame, 10);
 }
 
 var player = new PlayerBall(10, canvas.width / 2, canvas.height - 30, 3.25, -3.25);
-const playerRadius = 10;
-
-var numOfEnemies = 20;
-var numOfBallsToEat = 5;
 
 var enemyArray = [];
 var eatArray = [];
 var ballArray = [];
 
-var enemySpeed = 5;
-var eatSpeed = 4;
-var multiplierSpeed = 7.5;
-
-
-for (let i = 0; i < numOfEnemies; i++) {
-	var randSpeed = Math.floor(Math.random() * enemySpeed) + 2;
-	var enemy = EnemyBall.createEnemy(randSpeed, -randSpeed);
-	enemy.ballType = "enemy";
-	enemy.id = i;
-	enemyArray.push(enemy);
-}
-
-for (let i = 0; i < numOfBallsToEat; i++) {
-	var randSpeed = Math.floor(Math.random() * eatSpeed) + 2;
-	var eat = EnemyBall.createEnemy(randSpeed, -randSpeed);
-	eat.ballType = "eat";
-	eatArray.push(eat);
-}
-
-var multiplier = EnemyBall.createEnemy(multiplierSpeed, -multiplierSpeed);
-multiplier.ballType = "multiplier"; 
-multiplier.radius = 4;
-
-ballArray.push(multiplier);
-
-enemyArray.forEach(enemy => {
-	ballArray.push(enemy);
-});
-
-eatArray.forEach(eat => {
-	ballArray.push(eat);
-});
-
+var numOfBallsToEat = 5;
+const numOfEnemies = 20;
 
 main();
 
